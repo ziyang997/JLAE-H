@@ -63,7 +63,7 @@ class JoVA():
         self.i_embeddings_c = self.item_e()
         self.u_embeddings = self.item_d()
 
-
+        self.loss = self.get_loss()
         self.optimizer = tf.train.AdamOptimizer(learning_rate=self.lr).minimize(self.loss)
 
     def user_e(self):
@@ -99,23 +99,18 @@ class JoVA():
         u_embedding = self.Wid
 
         return u_embedding
-
     def get_loss(self):
         self.u_decoder = tf.matmul(self.u_embeddings_c, self.i_embeddings, transpose_a=False, transpose_b=True)
         self.i_decoder = tf.matmul(self.i_embeddings_c, self.u_embeddings, transpose_a=False, transpose_b=True)
-        self.decoder = ((tf.transpose(tf.gather_nd(tf.transpose(self.u_decoder), self.items)))
-                        + tf.gather_nd(tf.transpose(self.i_decoder), self.users)) / 2.0
+        self.Decoder = ((tf.transpose(tf.gather_nd(tf.transpose(self.u_decoder), tf.reshape(self.items, [-1, 1]))))+ tf.gather_nd(tf.transpose(self.i_decoder), tf.reshape(self.users, [-1, 1])))/2.0
+        loss_u = tf.reduce_sum(tf.square(self.u_decoder - self.input_R_U) * self.train_coffi_u)
+        loss_i = tf.reduce_sum(tf.square(self.i_decoder - tf.transpose(self.input_R_I)) * self.train_coffi_i)
         pos_data = tf.gather_nd(self.Decoder, self.input_P_cor)
         neg_data = tf.gather_nd(self.Decoder, self.input_N_cor)
-        pre_cost1 = tf.maximum(neg_data - pos_data + 0.15,
-                               tf.zeros(tf.shape(neg_data)[0]))
-        self.hinge = tf.reduce_sum(pre_cost1)
-        self.loss_u = tf.reduce_sum(tf.square(self.u_decoder-self.input_R_U)*self.train_coffi_u)
-        self.loss_i = tf.reduce_sum(tf.square(self.i_decoder-tf.transpose(self.input_R_I))*self.train_coffi_i)
-
-        self.loss = (self.loss_u  + self.loss_i)/2.0 + self.hinge
-
-
+        pre_cost1 = tf.maximum(neg_data - pos_data + 0.15, tf.zeros(tf.shape(neg_data)[0]))
+        hinge = tf.reduce_sum(pre_cost1)
+        loss = (loss_u + loss_i) / 2.0 + hinge
+        return loss
 
 if __name__ == '__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu_id)
