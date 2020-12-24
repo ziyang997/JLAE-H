@@ -301,7 +301,7 @@ def test_all_i(sess, model):
     test_model_all(Decoder.T, model.test_R, model.train_R)
 def test_all(sess, model):
     Decoder = sess.run(model.rating, {model.users: list(range(model.num_users)), model.input_R_U: model.train_R,
-                                      model.items: list(range(model.num_items)), model.input_R_I: model.train_R, model.input_P_cor:[[0, 0]], model.input_N_cor:[[0, 0]]})
+                                      model.items: list(range(model.num_items)), model.input_R_I: model.train_R, model.input_P_cor:[[0, 0]], model.input_N_cor:[[0, 0]]，model.drop:1.0})
     Decoder = np.array(Decoder)
     #Decoder = np.delete(Decoder, -1, axis=1)
     test_model_all(Decoder, model.test_R, model.train_R)
