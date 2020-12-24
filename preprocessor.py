@@ -17,6 +17,7 @@ class ml1m:
        self.test_mat = self.test_df.values
        self.train_R, self.item_train, self.max_item = self.get_train_set()
        self.user_train, self.max_user = self.get_train_user()
+       self.coffi = 0.5*(-1*self.train_R + 1) + self.train_R
        self.test_R = self.get_test_R()
 
     def get_test_R(self):
