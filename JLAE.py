@@ -68,7 +68,7 @@ class JoVA():
 
     def user_e(self):
         # encoder
-        self.Wue = tf.get_variable('Wue', [self.num_items, latent_dim], tf.float32, xavier_initializer())
+        self.Wue = tf.get_variable('Wue', [self.num_items, latent_dim], tf.float32, xavier_initializer(seed=2021))
         self.nor_input_u = tf.square(tf.nn.l2_normalize(self.input_R_U, 1))
         self.nor_input_u  = tf.nn.dropout(self.nor_input_u, self.drop)
         u_embedding_c = tf.matmul(self.nor_input_u, self.Wue)
@@ -77,7 +77,7 @@ class JoVA():
 
     def user_d(self):
         # encoder
-        self.Wud = tf.get_variable('Wud', [self.num_items, latent_dim], tf.float32, xavier_initializer())
+        self.Wud = tf.get_variable('Wud', [self.num_items, latent_dim], tf.float32, xavier_initializer(seed=2021))
         i_embedding = self.Wud
 
         return i_embedding
@@ -87,7 +87,7 @@ class JoVA():
 
         self.nor_input_i = tf.square(tf.nn.l2_normalize(tf.transpose(self.input_R_I), 1))
         self.nor_input_i= tf.nn.dropout(self.nor_input_i, self.drop)
-        self.Wie = tf.get_variable('Wie', [self.num_users, latent_dim], tf.float32, xavier_initializer())
+        self.Wie = tf.get_variable('Wie', [self.num_users, latent_dim], tf.float32, xavier_initializer(seed=2021))
         # self.h = tf.get_variable('h', [1, latent_dim], tf.float32, xavier_initializer())
         i_embedding_c = tf.matmul(self.nor_input_i, self.Wie)
 
@@ -95,7 +95,7 @@ class JoVA():
 
     def item_d(self):
         # encoder
-        self.Wid = tf.get_variable('Wid', [self.num_users , latent_dim], tf.float32, xavier_initializer())
+        self.Wid = tf.get_variable('Wid', [self.num_users , latent_dim], tf.float32, xavier_initializer(seed=2021))
         u_embedding = self.Wid
 
         return u_embedding
@@ -117,7 +117,8 @@ if __name__ == '__main__':
     model = JoVA(args, data_generator)
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
-    # tf.set_random_seed(777)
+    np.random.seed(2021)
+    tf.set_random_seed(2021)
 
     sess = tf.Session(config=config)
 
